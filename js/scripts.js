@@ -223,15 +223,24 @@ function eliminarProducto(id) {
 
 function vaciarCarrito() {
     if (carrito.length === 0) return;
-    // if (confirm("¿Estás seguro de que deseas vaciar todo el carrito?")) {}
-            carrito = [];
-        const productosLimpios = JSON.parse(localStorage.getItem("productos")) || productosIniciales;
-        listaProductos = JSON.parse(localStorage.getItem("productos")) ? productosLimpios : [...productosIniciales];
-        localStorage.removeItem("carrito");
-        actualizarLocalStorage();
-        renderizarProductos();
-        renderizarCarrito();
-    }
+
+    // 1. DEVOLVER EL STOCK: Recorremos el carrito y devolvemos las cantidades al catálogo actual
+    carrito.forEach(itemEnCarrito => {
+        const productoCatalogo = listaProductos.find(p => p.id === itemEnCarrito.id);
+        if (productoCatalogo) {
+            productoCatalogo.stock += itemEnCarrito.cantidad; // Devuelve todo el stock acumulado
+        }
+    });
+
+    // 2. LIMPIAR EL CARRITO
+    carrito = [];
+    localStorage.removeItem("carrito");
+    
+    // 3. ACTUALIZAR INTERFAZ Y ALMACENAMIENTO
+    actualizarLocalStorage();
+    renderizarProductos();
+    renderizarCarrito();
+}
 
 
 function validarFormularioContacto(evento) {
