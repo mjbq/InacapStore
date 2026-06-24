@@ -2,16 +2,17 @@
 // 1. CARGA INICIAL DE DATOS, PERSISTENCIA Y VARIABLES GLOBALES
 // =========================================================================
 
-// 1. Estructura con arreglos de imágenes para habilitar el carrusel interactivo
 const productosIniciales = [
     { 
-        id: 1, 
-        nombre: "Audífonos Bluetooth Pro", 
-        precio: 25000, 
-        stock: 5, 
-        categoria: "Audio", 
-        descripcion: "Inalámbricos con cancelación de ruido activa.", 
-        imagenes: ["img/audifonos.jpg", "img/audifonos1.jpg", "img/audifonos2.jpg"] // <-- Arreglo de fotos
+        id: 1,
+        nombre: "Audífonos Gamer Inacap Pro",
+        precio: 29990,
+        stock: 5,
+        categoria: "Periféricos",
+        descripcion: "Audio envolvente de alta definición y micrófono con cancelación de ruido.",
+        imagenes: ["img/audifonos.jpg", "img/audifonos1.jpg", "img/audifonos2.jpg"],
+        esOferta: true,     
+        descuento: 20       
     },
     { 
         id: 2, 
@@ -20,26 +21,29 @@ const productosIniciales = [
         stock: 6, 
         categoria: "Accesorios", 
         descripcion: "Impermeable, ergonómica y con puerto USB externo.", 
-        imagenes: ["img/mochila.jpg"] // Puede tener solo una y funcionará igual
-
+        imagenes: ["img/mochila.jpg"], 
+        esOferta: false
     },
     { 
         id: 3, 
-        nombre: "Notebook Inacap Pro", 
-        precio: 450000, 
-        stock: 3, 
-        categoria: "Computación", 
-        descripcion: "Pantalla Full HD, procesador veloz y almacenamiento SSD.", 
-        imagenes: ["img/notebook.jpg", "img/notebook1.jpg", "img/notebook2.jpg"] 
+        nombre: "Notebook ASUS Vivobook",
+        precio: 459990,
+        stock: 3,
+        categoria: "Computadores",
+        descripcion: "Rendimiento óptimo para tus jornadas de estudio y programación.",
+        imagenes: ["img/notebook.jpg", "img/notebook1.jpg", "img/notebook2.jpg"],
+        esOferta: false
     },
     { 
         id: 4, 
-       nombre: "Teclado Mecánico RGB", 
+        nombre: "Teclado Mecánico RGB", 
         precio: 35000, 
         stock: 4, 
         categoria: "Periféricos", 
         descripcion: "Switch red ideal para largas jornadas de estudio.", 
-        imagenes: ["img/teclado.jpg", "img/teclado1.jpg", "img/teclado2.jpg"] 
+        imagenes: ["img/teclado.jpg", "img/teclado1.jpg", "img/teclado2.jpg"],
+        esOferta: true,     
+        descuento: 15       
     },
     { 
         id: 5, 
@@ -48,14 +52,13 @@ const productosIniciales = [
         stock: 5, 
         categoria: "Accesorios", 
         descripcion: "Expande tus puertos fácilmente con HDMI y USB 3.0.", 
-        imagenes: ["img/hub.jpg"] 
+        imagenes: ["img/hub.jpg"], 
+        esOferta: false
     }
 ];
 
-// Ajuste rápido: Cambia la validación inicial para que lea la nueva propiedad "imagenes"
-if (!localStorage.getItem("productos")) {
-    localStorage.setItem("productos", JSON.stringify(productosIniciales));
-}
+// REEMPLAZO DIRECTO: Asegura que el navegador use la estructura limpia de arreglos
+localStorage.setItem("productos", JSON.stringify(productosIniciales));
 
 let listaProductos = JSON.parse(localStorage.getItem("productos"));
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
@@ -66,8 +69,7 @@ let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
 /**
  * Función: renderizarProductos()
- * Renderiza el catálogo usando contenedores 'ratio' nativos de Bootstrap 5
- * para garantizar simetría perfecta en Computador, Tablet y Celular.
+ * Muestra el catálogo con los precios de oferta en rojo y precios normales en negro.
  */
 function renderizarProductos() {
     const contenedor = document.getElementById("contenedor-productos");
@@ -77,23 +79,53 @@ function renderizarProductos() {
     listaProductos.forEach(prod => {
         const agotado = prod.stock === 0;
         
-        // Determinar si el producto tiene múltiples imágenes para activar los controles del carrusel
+        // Calcular precios dinámicamente si está en oferta
+        let precioFinal = prod.precio;
+        let contenedorPreciosHTML = "";
+
+        if (prod.esOferta && !agotado) {
+            precioFinal = prod.precio * (1 - (prod.descuento / 100));
+            
+            // PRECIOS DE OFERTA: Antiguo tachado y nuevo en ROJO (text-danger)
+            contenedorPreciosHTML = `
+                <div class="d-flex flex-column">
+                    <span class="text-muted small text-decoration-line-through">$${prod.precio.toLocaleString()}</span>
+                    <span class="fw-bold text-danger fs-5">$${precioFinal.toLocaleString()}</span>
+                </div>
+            `;
+        } else {
+            // PRECIOS NORMALES: Color NEGRO (text-dark) como el archivo original
+            contenedorPreciosHTML = `
+                <span class="fw-bold text-dark fs-5">$${prod.precio.toLocaleString()}</span>
+            `;
+        }
+
+        // Control dinámico del Badge de Oferta Exclusiva
+        let badgeOfertaHTML = "";
+        if (prod.esOferta && !agotado) {
+            badgeOfertaHTML = `
+                <span class="badge bg-danger text-white position-absolute top-0 start-0 m-2 px-2 py-1 fw-bold shadow-sm" style="z-index: 2;">
+                    <i class="bi bi-tag-fill me-1"></i>-${prod.descuento}% DCTO
+                </span>
+            `;
+        }
+
         const tieneMultiplesImg = prod.imagenes && prod.imagenes.length > 1;
         const idCarrusel = `carrusel-prod-${prod.id}`;
 
-        // Construir los elementos individuales (slides) del carrusel
         let slidesHTML = "";
-        prod.imagenes.forEach((imgRuta, index) => {
-            slidesHTML += `
-                <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                    <div class="ratio ratio-4x3 bg-light rounded-top overflow-hidden">
-                        <img src="${imgRuta}" alt="${prod.nombre}" style="object-fit: contain; padding: 10px;">
+        if (prod.imagenes && prod.imagenes.length > 0) {
+            prod.imagenes.forEach((imgRuta, index) => {
+                slidesHTML += `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <div class="ratio ratio-4x3 bg-light rounded-top overflow-hidden">
+                            <img src="${imgRuta}" alt="${prod.nombre}" style="object-fit: contain; padding: 10px;">
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
 
-        // Construir las flechas laterales de navegación solo si hay más de 1 imagen
         const controlesHTML = tieneMultiplesImg ? `
             <button class="carousel-control-prev" type="button" data-bs-target="#${idCarrusel}" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true" style="width: 2rem; height: 2rem;"></span>
@@ -105,10 +137,11 @@ function renderizarProductos() {
             </button>
         ` : "";
 
-        // Inyectar la tarjeta completa al contenedor
         contenedor.innerHTML += `
-            <div class="col-12 col-md-6 col-xl-4">
-                <div class="card h-100 shadow-sm border-0 ${agotado ? 'opacity-50 border border-danger dashed' : ''}">
+            <div class="col-12 col-md-6 col-xl-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 position-relative ${agotado ? 'opacity-50 border border-danger dashed' : ''}">
+                    
+                    ${badgeOfertaHTML}
                     
                     <div id="${idCarrusel}" class="carousel slide" data-bs-ride="false">
                         <div class="carousel-inner">
@@ -118,13 +151,13 @@ function renderizarProductos() {
                     </div>
 
                     <div class="card-body d-flex flex-column p-3">
-                        <span class="badge bg-secondary text-uppercase mb-2 align-self-start small" style="font-size: 0.75rem;">${prod.categoria}</span>
+                        <span class="badge bg-secondary text-uppercase mb-2 align-self-start small" style="font-size: 0.75rem;">${prod.categoria || 'General'}</span>
                         <h5 class="card-title fw-bold text-dark mb-1 fs-5">${prod.nombre}</h5>
-                        <p class="card-text text-muted small mb-3">${prod.descripcion}</p>
+                        <p class="card-text text-muted small mb-3">${prod.descripcion || ''}</p>
                         
                         <div class="mt-auto">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-primary fs-5">$${prod.precio.toLocaleString()}</span>
+                                ${contenedorPreciosHTML}
                                 <span class="small fw-semibold ${agotado ? 'text-danger' : 'text-success'}">
                                     ${agotado ? 'Agotado 🚫' : `Stock: ${prod.stock}`}
                                 </span>
@@ -148,6 +181,11 @@ function agregarProducto(id) {
     if (producto && producto.stock > 0) {
         producto.stock--;
 
+        let precioCobrado = producto.precio;
+        if (producto.esOferta) {
+            precioCobrado = producto.precio * (1 - (producto.descuento / 100));
+        }
+
         const itemCarrito = carrito.find(item => item.id === id);
         if (itemCarrito) {
             itemCarrito.cantidad++; 
@@ -155,7 +193,7 @@ function agregarProducto(id) {
             carrito.push({
                 id: producto.id,
                 nombre: producto.nombre,
-                precio: producto.precio,
+                precio: precioCobrado, 
                 cantidad: 1
             });
         }
@@ -224,24 +262,20 @@ function eliminarProducto(id) {
 function vaciarCarrito() {
     if (carrito.length === 0) return;
 
-    // 1. DEVOLVER EL STOCK: Recorremos el carrito y devolvemos las cantidades al catálogo actual
     carrito.forEach(itemEnCarrito => {
         const productoCatalogo = listaProductos.find(p => p.id === itemEnCarrito.id);
         if (productoCatalogo) {
-            productoCatalogo.stock += itemEnCarrito.cantidad; // Devuelve todo el stock acumulado
+            productoCatalogo.stock += itemEnCarrito.cantidad;
         }
     });
 
-    // 2. LIMPIAR EL CARRITO
     carrito = [];
     localStorage.removeItem("carrito");
     
-    // 3. ACTUALIZAR INTERFAZ Y ALMACENAMIENTO
     actualizarLocalStorage();
     renderizarProductos();
     renderizarCarrito();
 }
-
 
 function validarFormularioContacto(evento) {
     evento.preventDefault(); 
@@ -269,10 +303,6 @@ function validarFormularioContacto(evento) {
     document.getElementById("formulario-contacto").reset(); 
 }
 
-// =========================================================================
-// 3. FUNCIONES AUXILIARES Y SEGURIDAD DOM
-// =========================================================================
-
 function actualizarLocalStorage() {
     localStorage.setItem("productos", JSON.stringify(listaProductos));
     localStorage.setItem("carrito", JSON.stringify(carrito));
@@ -284,10 +314,6 @@ function mostrarAlertaSegura(texto, tipo) {
     contenedorEstado.className = `alert alert-${tipo} text-center fw-bold mb-3 shadow-sm rounded-3`;
     contenedorEstado.textContent = texto;
 }
-
-// =========================================================================
-// 4. INICIALIZACIÓN DE EVENTOS UNIFICADA
-// =========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     listaProductos = JSON.parse(localStorage.getItem("productos")) || productosIniciales;

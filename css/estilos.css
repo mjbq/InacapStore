@@ -266,4 +266,42 @@
     border-radius: 0.375rem;
     resize: vertical;
 }
+/* --- ESTILOS DEL SECTOR HERO Y BANNER DE OFERTAS --- */
 
+/* Fondo principal: SOLO degradado de colores oscuros, sin imagen */
+.hero-section {
+    background: linear-gradient(135deg, #8f9092 0%, #0f1115 100%);
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+/* Caja contenedora del anuncio de ofertas con fondo negro sólido */
+.ofertas-badge {
+    display: inline-block;
+    background-color: #000000; /* Fondo negro */
+    max-width: 550px;
+}
+
+/* Espaciado del título "OFERTAS EXCLUSIVAS" */
+.ofertas-badge h2 {
+    letter-spacing: 1.5px;
+}
+
+/* Sub-etiqueta "Comunidad Inacap" */
+.ofertas-sub {
+    background-color: #ffc107; /* Color warning de Bootstrap */
+    width: max-content;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+/* Limitador de ancho para el párrafo descriptivo */
+.hero-section p.lead {
+    max-width: 650px;
+    font-size: 1.05rem;
+}
+/* Agrega esto a tu archivo de estilos CSS */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
