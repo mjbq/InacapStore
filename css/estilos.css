@@ -1,0 +1,79 @@
+/* Animación de latido/pulso para destacar elementos */
+@keyframes pulsoEfecto {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    70% {
+        transform: scale(1.05); /* Crece un 5% */
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); /* Crea un aura brillante */
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+
+/* Clase que aplica el movimiento de forma infinita y fluida */
+.animar-pulso {
+    display: inline-block; /* Necesario para que la transformación funcione correctamente */
+    animation: pulsoEfecto 2s infinite ease-in-out;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+/* Efecto hover interactivo para las tarjetas del catálogo */
+#contenedor-productos .card {
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#contenedor-productos .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Modificación visual limpia cuando un producto está agotado */
+.opacity-50 {
+    filter: grayscale(80%);
+    border: 1px dashed #dc3545 !important;
+}
+
+/* Estilo para el total resaltado */
+.fw-extrabold {
+    font-weight: 600;
+}
+.fw-extrabold { font-weight: 900; tracking-content: 1px; }
+
+/* Efecto de brillo tecnológico para el logo */
+.logo-tech {
+    font-family: 'Courier New', Courier, monospace; /* O una similar que prefieras */
+    text-shadow: 0 0 10px rgba(132, 103, 15, 0.3);
+}
+
+/* Animación sutil para que el icono "respire" */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+.animate-pulse {
+    display: inline-block;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+/* Forzar uniformidad en las imágenes del catálogo */
+/* Estilo base estándar (para computadoras y pantallas grandes) */
+.img-catalogo {
+    width: 80%;
+    height: 220px;           /* Altura fija cómoda en computadoras */
+    object-fit: cover;       /* Rellena el contenedor de forma limpia */
+    object-position: center; /* Mantiene el centro de la imagen enfocado */
+}
+
