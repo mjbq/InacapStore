@@ -10,13 +10,13 @@
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <img src="img/logo.png" alt="Logo InacapStore" class="logo-navbar">
-                <i class="bi bi-terminal-fill text-warning fs-3 me-2"></i>
-                <div class="border-start border-secondary border-2 ps-2 ms-1 separador-logo">
-
+            
+            <a class="navbar-brand d-flex align-items-center fw-bold text-dark text-uppercase" href="index.html">
+                <img src="img/logo.png" alt="Logo InacapStore" class="logo-navbar img-fluid" style="max-height: 40px;">
+                <div class="border-start border-secondary border-2 ps-2 ms-2 separador-logo d-flex align-items-center">
+                    <span class="text-dark">inacap</span><span class="text-crimson-store" style="color: #D90429;">store</span>
                 </div>
             </a>
 
@@ -39,41 +39,40 @@
             
             <section class="col-lg-8 col-md-12 mb-4">
                 <h2 class="mb-4 text-dark fw-bold titulo-catalogo">
-                    <i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Catálogo de Productos
+                    <i class="bi bi-grid-3x3-gap-fill text-danger me-2" style="color: #D90429 !important;"></i>Catálogo de Productos
                 </h2>
-                <div id="contenedor-productos" class="row g-4">
-                    </div>
+                <div id="contenedor-productos" class="row g-4"></div>
             </section>
 
             <aside class="col-lg-4 col-md-12">
-    <div class="card shadow-sm border-0 sticky-top carrito-sticky">
-        <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-cart4 text-warning me-2"></i>Tu Carrito</span>
-            <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="vaciarCarrito()">
-                <i class="bi bi-trash3-fill"></i> Vaciar Carrito
-            </button>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-center">
-                    <thead class="table-dark">
-                        <tr class="small text-uppercase text-muted">
-                            <th scope="col" class="text-start ps-3">Producto</th>
-                            <th scope="col">Cant.</th>
-                            <th scope="col">Subtotal</th>
-                            <th scope="col">Acción</th> </tr>
-                    </thead>
-                    <tbody id="cuerpo-carrito" class="small">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
-            <span class="fw-bold text-dark fs-5">Total:</span>
-            <span class="fs-4 fw-bold text-black">$<span id="total-carrito">0</span></span>
-        </div>
-    </div>
-</aside>
+                <div class="card shadow-sm border-0 sticky-top carrito-sticky" style="top: 100px;">
+                    <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-cart4 text-white me-2"></i>Tu Carrito</span>
+                        <button class="btn btn-sm btn-warning text-dark fw-bold" onclick="vaciarCarrito()">
+                            <i class="bi bi-trash3-fill"></i> Vaciar Carrito
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-dark">
+                                    <tr class="small text-uppercase text-muted">
+                                        <th scope="col" class="text-start ps-3">Producto</th>
+                                        <th scope="col">Cant.</th>
+                                        <th scope="col">Subtotal</th>
+                                        <th scope="col">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpo-carrito" class="small"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-dark fs-5">Total:</span>
+                        <span class="fs-4 fw-bold text-black">$<span id="total-carrito">0</span></span>
+                    </div>
+                </div>
+            </aside>
 
         </div>
     </main>
