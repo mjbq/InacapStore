@@ -110,33 +110,112 @@ body {
    ========================================================================= */
 
 /* Hero Principal */
+/* --- HERO CON DEGRADADO ORIGINAL --- */
 .hero-section {
-    background: linear-gradient(135deg, #343a40 0%, var(--oscuro-tech) 100%);
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    background: linear-gradient(rgba(250, 249, 249, 0.15), rgba(121, 123, 125, 0.95)), 
+                linear-gradient(135deg, #8f9092 0%, #0f1115 100%);
+    min-height: 380px;
+    display: flex;
+    align-items: center;
 }
 
+/* Color Crimson para la marca desde CSS */
+.text-crimson-store {
+    color: var(--crimson-principal) !important;
+}
+
+/* Contenedor Base de Ofertas */
 .ofertas-badge {
-    display: inline-block;
+    width: 100%;
+    max-width: 460px;
     background-color: #000000;
-    max-width: 550px;
 }
 
-.ofertas-badge h2 {
-    letter-spacing: 1.5px;
-}
-
+/* Etiqueta amarilla interna */
 .ofertas-sub {
-    background-color: var(--crimson-principal);
-    color: #ffffff;
+    background-color: #ffc107;
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
     width: max-content;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    max-width: 100%;
 }
 
-.hero-section p.lead {
-    max-width: 650px;
-    font-size: 1.05rem;
+/* =========================================================================
+   ANIMACIÓN DE PULSO TÉCNICO (MOVIMIENTO)
+   ========================================================================= */
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    }
+    50% { 
+        transform: scale(1.03); 
+        box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+    }
+}
+
+.animate-pulse {
+    display: inline-block;
+    animation: pulse 2.5s infinite ease-in-out;
+}
+
+/* =========================================================================
+   PUNTOS DE CORTE RESPONSIVOS (BREAKPOINTS)
+   ========================================================================= */
+
+/* Celulares medianos (Pantallas >= 576px) */
+@media (min-width: 576px) {
+    .ofertas-sub {
+        font-size: 0.75rem;
+        letter-spacing: 0.8px;
+    }
+}
+
+/* Tablets (Pantallas >= 768px) */
+@media (min-width: 768px) {
+    .hero-section {
+        min-height: 430px;
+    }
+    .ofertas-sub {
+        font-size: 0.8rem;
+    }
+}
+
+/* Escritorio (Pantallas >= 992px) */
+@media (min-width: 992px) {
+    .ofertas-badge {
+        max-width: 520px;
+    }
+}
+
+/* =========================================================================
+   PUNTOS DE CORTE (BREAKPOINTS) PARA TABLETS Y PANTALLAS GRANDES
+   ========================================================================= */
+
+/* Desde Celulares medianos en adelante (Pantallas >= 576px) */
+@media (min-width: 576px) {
+    .ofertas-sub {
+        font-size: 0.75rem;
+        letter-spacing: 0.8px;
+    }
+}
+
+/* Desde Tablets en adelante (Pantallas >= 768px) */
+@media (min-width: 768px) {
+    .hero-section {
+        min-height: 450px;
+    }
+    .ofertas-sub {
+        font-size: 0.8rem;
+    }
+}
+
+/* Desde Pantallas Grandes/Monitores (Pantallas >= 992px) */
+@media (min-width: 992px) {
+    .ofertas-badge {
+        max-width: 520px;
+    }
 }
 
 /* Títulos con indicador Crimson lateral */
