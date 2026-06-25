@@ -2,58 +2,73 @@
 // 1. VARIABLES GLOBALES Y PERSISTENCIA
 // =========================================================================
 
+// =========================================================================
+// 1. VARIABLES GLOBALES Y PERSISTENCIA (DATOS REALES)
+// =========================================================================
+
 const productosIniciales = [
     { 
         id: 1,
-        nombre: "Audífonos Gamer Inacap Pro",
-        precio: 29990,
-        stock: 5,
-        categoria: "Periféricos",
-        descripcion: "Audio envolvente de alta definición y micrófono con cancelación de ruido.",
-        imagenes: ["img/audifonos.jpg", "img/audifonos1.jpg", "img/audifonos2.jpg"],
-        esOferta: true,     
-        descuento: 20       
-    },
-    { 
-        id: 2, 
-        nombre: "Mochila Porta Laptop", 
-        precio: 29990, 
-        stock: 6, 
-        categoria: "Accesorios", 
-        descripcion: "Impermeable, ergonómica y con puerto USB externo.", 
-        imagenes: ["img/mochila.jpg"], 
-        esOferta: false
-    },
-    { 
-        id: 3, 
-        nombre: "Notebook ASUS Vivobook",
-        precio: 459990,
-        stock: 3,
-        categoria: "Computadores",
-        descripcion: "Rendimiento óptimo para tus jornadas de estudio y programación.",
-        imagenes: ["img/notebook.jpg", "img/notebook1.jpg", "img/notebook2.jpg"],
-        esOferta: false
-    },
-    { 
-        id: 4, 
-        nombre: "Teclado Mecánico RGB", 
-        precio: 35000, 
-        stock: 4, 
-        categoria: "Periféricos", 
-        descripcion: "Switch red ideal para largas jornadas de estudio.", 
-        imagenes: ["img/teclado.jpg", "img/teclado1.jpg", "img/teclado2.jpg"],
+        nombre: "Audífonos Gamer HyperX Cloud Flight Wireless",
+        precio: 89990,
+        stock: 8,
+        categoria: "Audio y Periféricos",
+        descripcion: "Conexión inalámbrica de 2.4 GHz de nivel de juego, hasta 30 horas de batería y comodidad HyperX.",
+        imagenes: ["img/hyperx-flight.png"],
         esOferta: true,     
         descuento: 15       
     },
     { 
-        id: 5, 
-        nombre: "Hub USB-C 5 en 1", 
-        precio: 18990, 
-        stock: 5, 
-        categoria: "Accesorios", 
-        descripcion: "Expande tus puertos fácilmente con HDMI y USB 3.0.", 
-        imagenes: ["img/hub.jpg"], 
+        id: 2, 
+        nombre: "Mochila Tech Targus Intellect 15.6\"", 
+        precio: 24990, 
+        stock: 12, 
+        categoria: "Mochilas y Accesorios", 
+        descripcion: "Diseño delgado y liviano con compartimento acolchado dedicado para tu notebook de estudio.", 
+        imagenes: ["img/mochila-targus.png"], 
         esOferta: false
+    },
+    { 
+        id: 3, 
+        nombre: "Notebook ASUS Vivobook 15 Core i5 16GB RAM",
+        precio: 529990,
+        stock: 4,
+        categoria: "Computadores",
+        descripcion: "Procesador Intel Core i5 de 12a gen, 512GB SSD NVMe, ideal para programación y desarrollo de software.",
+        imagenes: ["img/asus-vivobook.png"],
+        esOferta: true,
+        descuento: 10
+    },
+    { 
+        id: 4, 
+        nombre: "Teclado Mecánico Redragon Mitra K551 RGB", 
+        precio: 42990, 
+        stock: 6, 
+        categoria: "Audio y Periféricos", 
+        descripcion: "Teclado mecánico con switches Outemu Red (silenciosos), estructura de aluminio y retroiluminación RGB.", 
+        imagenes: ["img/redragon-mitra.png"], 
+        esOferta: false      
+    },
+    { 
+        id: 5, 
+        nombre: "Hub Multi-puerto Baseus USB-C 6 en 1", 
+        precio: 29990, 
+        stock: 15, 
+        categoria: "Conectividad", 
+        descripcion: "Expansión masiva con puerto HDMI 4K, 3 puertos USB 3.0 y lector de tarjetas SD/MicroSD.", 
+        imagenes: ["img/hub-baseus.png"], 
+        esOferta: false
+    },
+    { 
+        id: 6,         
+        nombre: "Disco Duro Externo WD Elements 1TB USB 3.0", 
+        precio: 54990, 
+        stock: 7, 
+        categoria: "Almacenamiento", 
+        descripcion: "Almacenamiento portátil de gran capacidad, plug-and-play ideal para respaldar tus proyectos e informes.", 
+        imagenes: ["img/wd-elements.png"], 
+        esOferta: true,
+        descuento: 5
     }
 ];
 
@@ -76,7 +91,8 @@ function renderizarProductos() {
         let badgeOfertaHTML = "";
 
         if (prod.esOferta && !agotado) {
-            precioFinal = prod.precio * (1 - (prod.descuento / 100));
+        // Redondeamos el cálculo matemático para eliminar cualquier decimal
+            precioFinal = Math.round(prod.precio * (1 - (prod.descuento / 100))); 
             badgeOfertaHTML = `
                 <span class="badge bg-danger text-white position-absolute top-0 start-0 m-2 px-2 py-1 fw-bold shadow-sm" style="z-index: 2;">
                     <i class="bi bi-tag-fill me-1"></i>-${prod.descuento}% DCTO
