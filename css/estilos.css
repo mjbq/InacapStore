@@ -83,10 +83,11 @@ body {
     box-shadow: 0 4px 12px rgba(217, 4, 41, 0.35) !important;
 }
 
-/* Anula el movimiento físico del botón provocado por la elevación de las tarjetas del catálogo */
+
 #contenedor-productos .btn-warning,
 #contenedor-productos .btn-warning:hover {
     transform: translateY(0) !important; 
+    color: #f1ecec !important;
     transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
