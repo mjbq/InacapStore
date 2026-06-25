@@ -267,7 +267,12 @@ function validarFormularioContacto(evento) {
     contenedorEstado.className = "alert alert-success text-center fw-bold mb-3 shadow-sm";
     contenedorEstado.textContent = `¡Gracias por escribirnos, ${nombre}! Tu mensaje ha sido enviado exitosamente.`;
     document.getElementById("formulario-contacto").reset(); 
+    setTimeout(() => {  //temporizador para limpiar el mensaje de estado después de 5 segundos
+        contenedorEstado.textContent = "";
+        contenedorEstado.className = "";
+    }, 5000); 
 }
+
 
 function actualizarLocalStorage() {
     localStorage.setItem("productos", JSON.stringify(listaProductos));
