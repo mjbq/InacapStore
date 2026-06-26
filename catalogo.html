@@ -30,6 +30,7 @@
                     <a class="nav-link text-dark active fw-bold border-bottom border-warning border-2 px-3" href="catalogo.html">Catálogo</a>
                     <a class="nav-link text-dark px-3" href="contacto.html">Contacto</a>
                 </div>
+                <div class="ms-lg-3 mt-2 mt-lg-0" id="menu-autenticacion"></div>
             </div>
         </div>
     </nav>
@@ -41,6 +42,28 @@
                 <h2 class="mb-4 text-dark fw-bold titulo-catalogo">
                     <i class="bi bi-grid-3x3-gap-fill text-danger me-2"></i>Catálogo de Productos
                 </h2>
+
+                <div class="card p-3 mb-4 bg-white border-0 shadow-sm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="filtro-categoria" class="form-label small fw-bold text-dark">Categoría</label>
+                            <select id="filtro-categoria" class="form-select"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between">
+                                <label for="filtro-precio" class="form-label small fw-bold text-dark">Filtro por Precio</label>
+                                <span class="small fw-bold text-muted">
+                                    Máx seleccionado: <span id="valor-precio-max" class="text-danger">$0</span>
+                                </span>
+                            </div>
+                            <input type="range" class="form-range" id="filtro-precio" min="0" value="0">
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>$0</span>
+                                <span id="rango-max-disponible">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div id="contenedor-productos" class="row g-4"></div>
             </section>
 
@@ -67,12 +90,16 @@
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-dark fs-5">Total:</span>
-                        <span class="fs-4 fw-bold text-black">$<span id="total-carrito">0</span></span>
+                    <div class="card-footer bg-white border-top p-3 text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-dark fs-5">Total:</span>
+                            <span class="fs-4 fw-bold text-black">$<span id="total-carrito">0</span></span>
+                        </div>
+                        <button class="btn btn-danger w-100 fw-bold py-2" id="btn-realizar-compra" onclick="realizarCompra()">
+                            <i class="bi bi-credit-card-fill me-2"></i>Realizar compra
+                        </button>
                     </div>
-                </div>
-            </aside>
+                </div> </aside>
 
         </div>
     </main>
@@ -85,5 +112,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/scripts.js"></script>
+   
 </body>
 </html>

@@ -1,8 +1,4 @@
 // =========================================================================
-// 1. VARIABLES GLOBALES Y PERSISTENCIA
-// =========================================================================
-
-// =========================================================================
 // 1. VARIABLES GLOBALES Y PERSISTENCIA (DATOS REALES)
 // =========================================================================
 
@@ -72,26 +68,102 @@ const productosIniciales = [
     }
 ];
 
+// Carga inicial correcta vinculada a LocalStorage
 let listaProductos = JSON.parse(localStorage.getItem("productos")) || productosIniciales;
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
+// Guardar en LocalStorage si es la primera vez que se entra para asegurar las categorías
+if (!localStorage.getItem("productos")) {
+    localStorage.setItem("productos", JSON.stringify(listaProductos));
+}
+
 // =========================================================================
-// 2. CONTROL DE TIENDA Y RENDERIZADO
+// 2. MÓDULO DE FILTRADO DINÁMICO
 // =========================================================================
 
-function renderizarProductos() {
+function inicializarFiltros() {
+    const selectorCategoria = document.getElementById("filtro-categoria");
+    const controlPrecio = document.getElementById("filtro-precio");
+    
+    if (!selectorCategoria || !controlPrecio) return; 
+
+    // 1. Población dinámica de categorías desde LocalStorage (listaProductos)
+    const categoriasExistentes = listaProductos.map(p => p.categoria || "General");
+    const categoriasUnicas = ["Todas las Categorías", ...new Set(categoriasExistentes)];
+    
+    selectorCategoria.innerHTML = categoriasUnicas.map(cat => 
+        `<option value="${cat}">${cat}</option>`
+    ).join("");
+
+    // 2. Cálculo automático del precio máximo basado en el producto de mayor valor
+    let precioMaximoCatalogo = 0;
+    if (listaProductos.length > 0) {
+        precioMaximoCatalogo = Math.max(...listaProductos.map(p => p.precio));
+    }
+    
+    controlPrecio.max = precioMaximoCatalogo;
+    controlPrecio.value = precioMaximoCatalogo; 
+    
+    const maxDispEl = document.getElementById("rango-max-disponible");
+    if (maxDispEl) maxDispEl.textContent = `$${precioMaximoCatalogo.toLocaleString("es-CL")}`;
+    
+    const valPrecioMaxEl = document.getElementById("valor-precio-max");
+    if (valPrecioMaxEl) valPrecioMaxEl.textContent = `$${precioMaximoCatalogo.toLocaleString("es-CL")}`;
+
+    // 3. Listeners para escuchar los cambios del usuario sin recargar página
+    selectorCategoria.addEventListener("change", filtrarProductos);
+    controlPrecio.addEventListener("input", (e) => {
+        const valPrecioMaxEl = document.getElementById("valor-precio-max");
+        if (valPrecioMaxEl) valPrecioMaxEl.textContent = `$${Number(e.target.value).toLocaleString("es-CL")}`;
+        filtrarProductos();
+    });
+}
+
+function filtrarProductos() {
+    const selectorCatEl = document.getElementById("filtro-categoria");
+    const controlPrecioEl = document.getElementById("filtro-precio");
+
+    if (!selectorCatEl || !controlPrecioEl) {
+        renderizarProductos(listaProductos);
+        return;
+    }
+
+    const categoriaSeleccionada = selectorCatEl.value;
+    const precioMaximoSeleccionado = Number(controlPrecioEl.value);
+
+    const productosFiltrados = listaProductos.filter(prod => {
+        const cumpleCategoria = (categoriaSeleccionada === "Todas las Categorías" || prod.categoria === categoriaSeleccionada);
+        const cumplePrecio = prod.precio <= precioMaximoSeleccionado;
+        return cumpleCategoria && cumplePrecio;
+    });
+
+    renderizarProductos(productosFiltrados);
+}
+
+// =========================================================================
+// 3. CONTROL DE TIENDA Y RENDERIZADO ORIGINAL EXACTO
+// =========================================================================
+
+function renderizarProductos(listaAMostrar = listaProductos) {
     const contenedor = document.getElementById("contenedor-productos");
     if (!contenedor) return; 
     contenedor.innerHTML = "";
 
-    listaProductos.forEach(prod => {
+    if (listaAMostrar.length === 0) {
+        contenedor.innerHTML = `
+            <div class="col-12 text-center my-5">
+                <p class="text-muted fw-bold fs-5">No existen productos que coincidan con los criterios seleccionados.</p>
+            </div>`;
+        return;
+    }
+
+    listaAMostrar.forEach(prod => {
         const agotado = prod.stock === 0;
         let precioFinal = prod.precio;
         let contenedorPreciosHTML = "";
         let badgeOfertaHTML = "";
 
         if (prod.esOferta && !agotado) {
-        // Redondeamos el cálculo matemático para eliminar cualquier decimal
             precioFinal = Math.round(prod.precio * (1 - (prod.descuento / 100))); 
             badgeOfertaHTML = `
                 <span class="badge bg-danger text-white position-absolute top-0 start-0 m-2 px-2 py-1 fw-bold shadow-sm" style="z-index: 2;">
@@ -173,9 +245,49 @@ function agregarProducto(id) {
             carrito.push({ id: producto.id, nombre: producto.nombre, precio: precioCobrado, cantidad: 1 });
         }
         actualizarLocalStorage();
-        renderizarProductos();
+        filtrarProductos(); 
         renderizarCarrito();
     }
+}
+
+// =========================================================================
+// 4. MÓDULO DE NAVEGACIÓN Y SESIONES (MENÚ COMPARTIDO DINÁMICO)
+// =========================================================================
+
+function renderizarMenuNavegacion() {
+    const contenedorMenu = document.getElementById("menu-autenticacion");
+    if (!contenedorMenu) return;
+
+    const sesionActiva = JSON.parse(localStorage.getItem("sesion_activa"));
+
+    if (sesionActiva && sesionActiva.logueado) {
+        // Estructura requerida: Bienvenido, NombreUsuario junto al botón Cerrar sesión
+        contenedorMenu.innerHTML = `
+            <div class="d-flex align-items-center flex-column flex-lg-row gap-2">
+                <span class="navbar-text fw-bold text-dark me-lg-2">
+                    <i class="bi bi-person-circle text-crimson-store me-1"></i>Bienvenido, ${sesionActiva.nombre}
+                </span>
+                <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-1.5 rounded-3 text-uppercase" onclick="cerrarSesion()">
+                    Cerrar sesión <i class="bi bi-box-arrow-right ms-1"></i>
+                </button>
+            </div>
+        `;
+    } else {
+        // Menú por defecto para visitantes sin sesión iniciada
+        contenedorMenu.innerHTML = `
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="login.html" class="btn btn-outline-dark px-3 fw-semibold">Iniciar Sesión</a>
+                <a href="registro.html" class="btn btn-warning text-white fw-bold shadow-sm btn-enviar">Registrarse</a>
+            </div>
+        `;
+    }
+}
+
+function cerrarSesion() {
+    // • Se deberá eliminar la sesión actual.
+    localStorage.removeItem("sesion_activa");
+    // • El sistema redireccionará a la página principal.
+    window.location.href = "index.html";
 }
 
 function renderizarCarrito() {
@@ -218,7 +330,7 @@ function eliminarProducto(id) {
         if (itemCarrito.cantidad === 0) carrito = carrito.filter(item => item.id !== id);
         
         actualizarLocalStorage();
-        renderizarProductos();
+        filtrarProductos(); 
         renderizarCarrito();
     }
 }
@@ -231,12 +343,40 @@ function vaciarCarrito() {
     });
     carrito = [];
     actualizarLocalStorage();
-    renderizarProductos();
+    filtrarProductos();
+    renderizarCarrito();
+}
+
+function realizarCompra() {
+    let carritoActual = JSON.parse(localStorage.getItem('carrito')) || [];
+    let productosActuales = JSON.parse(localStorage.getItem('productos')) || [];
+
+    if (carritoActual.length === 0) {
+        alert("El carrito está vacío. Agregue productos antes de realizar la compra.");
+        return;
+    }
+
+    carritoActual.forEach(itemCarrito => {
+        let productoCatalogo = productosActuales.find(prod => prod.id === itemCarrito.id);
+        if (productoCatalogo) {
+            productoCatalogo.stock -= itemCarrito.cantidad;
+            if (productoCatalogo.stock < 0) productoCatalogo.stock = 0;
+        }
+    });
+
+    localStorage.setItem('productos', JSON.stringify(productosActuales));
+    localStorage.setItem('carrito', JSON.stringify([]));
+
+    alert("Su compra fue realizada con éxito.");
+    
+    listaProductos = productosActuales;
+    carrito = [];
+    filtrarProductos();
     renderizarCarrito();
 }
 
 // =========================================================================
-// 3. FORMULARIO DE CONTACTO Y EVENTOS
+// 5. FORMULARIO DE CONTACTO
 // =========================================================================
 
 function validarFormularioContacto(evento) {
@@ -267,21 +407,184 @@ function validarFormularioContacto(evento) {
     contenedorEstado.className = "alert alert-success text-center fw-bold mb-3 shadow-sm";
     contenedorEstado.textContent = `¡Gracias por escribirnos, ${nombre}! Tu mensaje ha sido enviado exitosamente.`;
     document.getElementById("formulario-contacto").reset(); 
-    setTimeout(() => {  //temporizador para limpiar el mensaje de estado después de 5 segundos
+    setTimeout(() => {  
         contenedorEstado.textContent = "";
         contenedorEstado.className = "";
     }, 5000); 
 }
-
 
 function actualizarLocalStorage() {
     localStorage.setItem("productos", JSON.stringify(listaProductos));
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
+// =========================================================================
+// 6. UNIFICACIÓN TOTAL DE CARGA DEL DOM 
+// =========================================================================
 document.addEventListener("DOMContentLoaded", () => {
-    renderizarProductos();
+    // Renderizado estructural base
+    inicializarFiltros();
+    filtrarProductos(); 
     renderizarCarrito();
-    const formulario = document.getElementById("formulario-contacto");
-    if (formulario) formulario.addEventListener("submit", validarFormularioContacto);
+    renderizarMenuNavegacion(); // Gestiona el estado de login en el Navbar en cualquier página
+    
+    const formularioContacto = document.getElementById("formulario-contacto");
+    if (formularioContacto) {
+        formularioContacto.addEventListener("submit", validarFormularioContacto);
+    }
+
+    // -----------------------------------------------------------------
+    // LÓGICA DE INICIO DE SESIÓN (login.html)
+    // -----------------------------------------------------------------
+    const formLogin = document.getElementById("form-login");
+    const msgErrorLogin = document.getElementById("msg-error");
+    const msgExitoLogin = document.getElementById("msg-exito");
+
+    if (formLogin) {
+        formLogin.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            if (msgErrorLogin) msgErrorLogin.classList.add("d-none");
+            if (msgExitoLogin) msgExitoLogin.classList.add("d-none");
+
+            const emailInput = document.getElementById("email").value.trim();
+            const passwordInput = document.getElementById("password").value.trim();
+
+            if (emailInput === "" || passwordInput === "") {
+                if (msgErrorLogin) {
+                    msgErrorLogin.textContent = "Por favor, complete todos los campos.";
+                    msgErrorLogin.classList.remove("d-none");
+                }
+                return;
+            }
+
+            const usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const usuarioEncontrado = usuariosGuardados.find(
+                (user) => user.correo === emailInput && user.password === passwordInput
+            );
+
+            if (usuarioEncontrado) {
+                if (msgExitoLogin) msgExitoLogin.classList.remove("d-none");
+                
+                // Recordar usuario activo mediante estructura de control de sesión
+                const sesionUsuario = {
+                    nombre: usuarioEncontrado.nombre,
+                    correo: usuarioEncontrado.correo,
+                    logueado: true
+                };
+                localStorage.setItem("sesion_activa", JSON.stringify(sesionUsuario));
+                
+                setTimeout(() => { window.location.href = "index.html"; }, 1500);
+            } else {
+                if (msgErrorLogin) {
+                    msgErrorLogin.textContent = "El correo electrónico o la contraseña son inválidos.";
+                    msgErrorLogin.classList.remove("d-none");
+                }
+            }
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // LÓGICA DE REGISTRO DE USUARIOS (registro.html)
+    // -----------------------------------------------------------------
+    const formRegistro = document.getElementById("form-registro");
+    const msgErrorReg = document.getElementById("msg-error-reg");
+    const msgExitoReg = document.getElementById("msg-exito-reg");
+
+    if (formRegistro) {
+        formRegistro.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            if (msgErrorReg) msgErrorReg.classList.add("d-none");
+            if (msgExitoReg) msgExitoReg.classList.add("d-none");
+
+            const nombreReg = document.getElementById("nombre").value.trim();
+            const emailReg = document.getElementById("email").value.trim();
+            const passwordReg = document.getElementById("password").value;
+            const confirmPasswordReg = document.getElementById("confirm-password").value;
+
+            if (nombreReg === "" || emailReg === "" || passwordReg === "" || confirmPasswordReg === "") {
+                if (msgErrorReg) {
+                    msgErrorReg.textContent = "Por favor, complete todos los campos obligatorios.";
+                    msgErrorReg.classList.remove("d-none");
+                }
+                return;
+            }
+
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(emailReg)) {
+                if (msgErrorReg) {
+                    msgErrorReg.textContent = "El formato del correo electrónico no es válido (ejemplo@correo.com).";
+                    msgErrorReg.classList.remove("d-none");
+                }
+                return;
+            }
+
+            let usuariosGuardados = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const correoExiste = usuariosGuardados.some(user => user.correo.toLowerCase() === emailReg.toLowerCase());
+            if (correoExiste) {
+                if (msgErrorReg) {
+                    msgErrorReg.textContent = "Este correo electrónico ya se encuentra registrado.";
+                    msgErrorReg.classList.remove("d-none");
+                }
+                return;
+            }
+
+            if (passwordReg.length < 8) {
+                if (msgErrorReg) {
+                    msgErrorReg.textContent = "La contraseña debe contener como mínimo 8 caracteres.";
+                    msgErrorReg.classList.remove("d-none");
+                }
+                return;
+            }
+
+            const tieneMayuscula = /[A-Z]/.test(passwordReg);
+            const tieneMinuscula = /[a-z]/.test(passwordReg);
+            const tieneNumero = /[0-9]/.test(passwordReg);
+            const tieneEspecial = /[^A-Za-z0-9]/.test(passwordReg);
+
+            if (!tieneMayuscula) {
+                if (msgErrorReg) { msgErrorReg.textContent = "La contraseña debe contener al menos una letra mayúscula."; msgErrorReg.classList.remove("d-none"); }
+                return;
+            }
+            if (!tieneMinuscula) {
+                if (msgErrorReg) { msgErrorReg.textContent = "La contraseña debe contener al menos una letra minúscula."; msgErrorReg.classList.remove("d-none"); }
+                return;
+            }
+            if (!tieneNumero) {
+                if (msgErrorReg) { msgErrorReg.textContent = "La contraseña debe contener al menos un número."; msgErrorReg.classList.remove("d-none"); }
+                return;
+            }
+            if (!tieneEspecial) {
+                if (msgErrorReg) { msgErrorReg.textContent = "La contraseña debe contener al menos un símbolo especial (ej: !@#$%^&*)."; msgErrorReg.classList.remove("d-none"); }
+                return;
+            }
+
+            if (passwordReg !== confirmPasswordReg) {
+                if (msgErrorReg) {
+                    msgErrorReg.textContent = "Las contraseñas ingresadas no coinciden.";
+                    msgErrorReg.classList.remove("d-none");
+                }
+                return;
+            }
+
+            // Capturar fecha actual con formato dinámico YYYY-MM-DD requerido
+            const fechaActual = new Date().toISOString().split('T')[0];
+
+            // Estructura de Almacenamiento requerida por rúbrica
+            const nuevoUsuario = { 
+                correo: emailReg, 
+                nombre: nombreReg, 
+                password: passwordReg,
+                fechaCreacion: fechaActual
+            };
+            
+            usuariosGuardados.push(nuevoUsuario);
+            localStorage.setItem("usuarios", JSON.stringify(usuariosGuardados));
+
+            if (msgExitoReg) msgExitoReg.classList.remove("d-none");
+            formRegistro.reset();
+            setTimeout(() => { window.location.href = "login.html"; }, 2000);
+        });
+    }
 });
